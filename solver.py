@@ -108,6 +108,7 @@ class bfs_solver:
                 color["grey"].remove(tuple(vertice))
         return dist,parent,color
     
+
     def backtracking(self,parent,source,aim):
         path=[]
         current=aim
@@ -119,9 +120,63 @@ class bfs_solver:
         path.append(source)
         path.reverse()
         return path
+
     
     def solve(self):
         dist,parent,color=self.treat()
         path=self.backtracking(parent,tuple(self.source),tuple(self.aim))
         return path
+    
+class bellman_ford_solver:
+    def __init__ (self,lab:np.ndarray,source,aim):
+        self.lab=lab
+        self.source=source
+        self.aim=aim
+    def treat(self):
+        dist={}
+        parent={}
+        for i in range(self.lab.shape[0]):
+            for j in range(self.lab.shape[1]):
+                if self.lab[i,j]==2 or self.lab[i,j]==3 or self.lab[i,j]==1:
+                    dist[(i,j)]=float('inf')
+                    parent[(i,j)]=None
+        dist[tuple(self.source)]=0
+        laby=Labyrinth(self.lab.shape)
+        for _ in range(len(dist)-1):
+            for u in dist.keys():
+                for v in laby.neighbours(self.lab,u[0],u[1]):
+                    if v in dist:
+                        if dist[u]+1<dist[v]:
+                            dist[v]=dist[u]+1
+                            parent[v]=u
+
+        # Check for negative-weight cycles (not applicable here since all weights are positive but...)
+        for u in dist.keys():
+                for v in laby.neighbours(self.lab,u[0],u[1]):
+                    if v in dist:
+                        if dist[u]+1<dist[v]:
+                            raise ValueError("Graph contains a negative-weight cycle") # That is not possible here but generally good to check
+        return dist,parent
+    def backtracking(self,parent,source,aim):
+        path=[]
+        current=aim
+        if tuple(aim) not in parent:
+            return None  # Aim is unreachable
+        while current != source:
+            path.append(current)
+            current=parent[current]
+        path.append(source)
+        path.reverse()
+        return path
+    def solve(self):
+        dist,parent=self.treat()
+        path=self.backtracking(parent,self.source,self.aim)
+        return path
+class aco_solver:
+    def __init__ (self,lab:np.ndarray,source,aim):
+        self.lab=lab
+        self.source=source
+        self.aim=aim
+
+
     
