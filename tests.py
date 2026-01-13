@@ -18,3 +18,10 @@ print(lab)
 print(b)
 print(bellman_ford_solver.solve())
 
+#Test for aco
+from solver import aco_solver
+aco_solver=aco_solver(lab,source,aim)
+a,b=aco_solver.treat()
+print(lab)
+print(b)
+print(aco_solver.solve())

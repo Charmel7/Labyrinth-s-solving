@@ -1,4 +1,5 @@
 import numpy as np
+print(np.__version__)
 import random as rd
 import numpy as np
 class Labyrinth:
@@ -46,7 +47,7 @@ class Labyrinth:
     def _moveDown(self,a:int ,b:int ) ->bool:
         if a<self.shape[0] and b-1<self.shape[1] and a>=0 and b>=0:
             return True
-        False
+        return False
     def neighbours(self,lab,a:int,b:int)->list[list]:
         neighbours_list=[]
         if self._moveRight(a,b) and (lab[a+1,b]==1 or lab[a+1,b]==3 or lab[a+1,b]==2):
@@ -177,6 +178,51 @@ class aco_solver:
         self.lab=lab
         self.source=source
         self.aim=aim
+
+    def treat(self):
+        num_ants = 10
+        pheromone = np.ones(self.lab.shape) * 0.1
+        best_path = None
+        best_length = float('inf')
+
+        for iteration in range(100):
+            all_paths = []
+            for _ in range(num_ants):
+                current_position = self.source
+                path = [current_position]
+                while current_position != self.aim:
+                    neighbours = self.neighbours(self.lab, current_position[0], current_position[1])
+                    if not neighbours:
+                        break
+                    probabilities = []
+                    for neighbour in neighbours:
+                        pheromone_level = pheromone[neighbour]
+                        distance = 1  # Assuming uniform distance
+                        probabilities.append(pheromone_level / distance)
+                    probabilities = np.array(probabilities)
+                    probabilities /= probabilities.sum()
+                    next_position = neighbours[np.random.choice(len(neighbours), p=probabilities)]
+                    path.append(next_position)
+                    current_position = next_position
+
+                all_paths.append(path)
+                path_length = len(path)
+                if path_length < best_length:
+                    best_length = path_length
+                    best_path = path
+
+            pheromone *= 0.95  # Evaporation
+            for path in all_paths:
+                for position in path:
+                    pheromone[position] += 1.0 / len(path)  # Deposit pheromone
+
+        return best_path
+
+    def solve(self):
+        path = self.treat()
+        return path
+
+    
 
 
     
