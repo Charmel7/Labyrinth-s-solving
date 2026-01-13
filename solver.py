@@ -180,7 +180,7 @@ class aco_solver:
         self.aim=aim
 
     def treat(self):
-        num_ants = 10
+        num_ants = 50
         pheromone = np.ones(self.lab.shape) * 0.1
         best_path = None
         best_length = float('inf')
